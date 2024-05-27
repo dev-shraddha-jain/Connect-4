@@ -24,7 +24,7 @@ fun SplashScreen(navController: NavHostController) {
 
     LaunchedEffect(key1 = Unit) {
         delay(1000)
-        navController.navigate(Route.gameScreen)
+        navController.navigate(Route.gameConfigScreen)
     }
 
 

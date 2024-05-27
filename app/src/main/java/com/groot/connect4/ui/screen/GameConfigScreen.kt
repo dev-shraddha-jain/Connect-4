@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,9 +35,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.groot.connect4.R
+import com.groot.connect4.di.GameConfig
 import com.groot.connect4.di.Opponent.OPPONENT_AI
 import com.groot.connect4.di.Opponent.OPPONENT_PLAYER
 import com.groot.connect4.di.Opponent.OPPONENT_SELF
+import com.groot.connect4.navigation.NavArgWrapperDto
+import com.groot.connect4.navigation.Navigate
 import com.groot.connect4.navigation.Route
 import com.groot.connect4.ui.theme.Connect4Theme
 
@@ -45,7 +49,7 @@ fun GameConfigScreen(navController: NavHostController) {
 
 
     val selectedOpponent = remember { mutableStateOf(OPPONENT_PLAYER) }
-    val selectedFirstPlayer = remember { mutableStateOf(OPPONENT_SELF) }
+    val selectedFirstPlayer = remember { mutableStateOf(OPPONENT_PLAYER) }
 
     val selectedColor = remember { mutableStateOf(R.color.red) }
 
@@ -149,8 +153,6 @@ fun GameConfigScreen(navController: NavHostController) {
                 }
 
             }
-
-
         }
 
         Button(
@@ -159,15 +161,20 @@ fun GameConfigScreen(navController: NavHostController) {
                 .height(65.dp),
             shape = RoundedCornerShape(0.dp),
             onClick = {
-                navController.navigate(Route.gameScreen)
-            }) {
-            Text(
-                text = stringResource(id = R.string.play),
-                style = MaterialTheme.typography.titleLarge,
-
+                val isComputer = selectedOpponent.value == OPPONENT_AI
+                val vo = GameConfig(isComputer, selectedFirstPlayer.value, selectedColor.value)
+                val config = NavArgWrapperDto(vo, Route.gameConfigScreen)
+                Navigate(navController, config, Route.gameScreen)
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorResource(id = R.color.colorAccent)
+            ),
+            content = {
+                Text(
+                    text = stringResource(id = R.string.play),
+                    style = MaterialTheme.typography.titleLarge
                 )
-
-        }
+            })
     }
 
 }
@@ -200,7 +207,7 @@ fun PlayerCircle(border: Int, colorId: Int, function: () -> Unit) {
     Text(
         modifier = Modifier
             .size(50.dp)
-            .border(2.dp, colorResource(id = border), CircleShape)
+            .border(4.dp, colorResource(id = border), CircleShape)
             .background(colorResource(id = colorId), CircleShape)
             .clickable {
                 function()

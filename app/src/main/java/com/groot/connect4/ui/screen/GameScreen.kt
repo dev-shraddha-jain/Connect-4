@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,24 +27,83 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.groot.connect4.BoardLogic
 import com.groot.connect4.R
+import com.groot.connect4.di.GameConfig
+import com.groot.connect4.di.Opponent
+import com.groot.connect4.navigation.NavArgWrapperDto
 import com.groot.connect4.navigation.Route
 import com.groot.connect4.ui.theme.Connect4Theme
+import com.groot.connect4.utils.BoardLogic
+import com.groot.connect4.utils.ComputerPlayer
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @Composable
 fun GameScreen(navController: NavHostController) {
+    val isComputerOpponent = remember { mutableStateOf(false) }
+    val player1Name = remember { mutableStateOf(Opponent.OPPONENT_SELF) }
+    val player2Name = remember { mutableStateOf(Opponent.OPPONENT_AI) }
     val selectedColor = remember { mutableStateOf(R.color.red) }
+    val player2Color = remember { mutableStateOf(R.color.red) }
+    val player1Color = remember { mutableStateOf(R.color.red) }
 
     val currentPlayer = remember { mutableStateOf(1) }
     val winner = remember { mutableStateOf<Int?>(0) }
     val board = remember { mutableStateOf(Array(6) { Array(7) { 0 } }) }
 
+    val computerPlayer = remember { ComputerPlayer(board, 2) }
+
+    val wrapper = navController.previousBackStackEntry?.savedStateHandle?.get<NavArgWrapperDto>("navArgWrapperDto")
+
+
+    LaunchedEffect(key1 = Unit) {
+        val config = wrapper?.navArgVo as GameConfig
+
+        if (config.player1Color == R.color.red) {
+
+            player2Color.value = R.color.yellow
+            player1Color.value = R.color.red
+            currentPlayer.value = 1
+        } else {
+            player2Color.value = R.color.red
+            player1Color.value = R.color.yellow
+            currentPlayer.value = 2
+
+            player2Name.value
+        }
+
+        when (config.firstTurn) {
+            Opponent.OPPONENT_PLAYER -> {
+                player1Name.value = Opponent.OPPONENT_PLAYER
+                player2Name.value = Opponent.OPPONENT_SELF
+            }
+
+            Opponent.OPPONENT_SELF -> {
+                player1Name.value = Opponent.OPPONENT_SELF
+                if (config.isComputer) {
+                    player2Name.value = Opponent.OPPONENT_AI
+                } else {
+                    player2Name.value = Opponent.OPPONENT_PLAYER
+                }
+            }
+
+            Opponent.OPPONENT_AI -> {
+                player1Name.value = Opponent.OPPONENT_AI
+                player2Name.value = Opponent.OPPONENT_SELF
+                computerPlayer.makeMove() //make move on launch
+            }
+        }
+
+        selectedColor.value = config.player1Color// set player 1 color to selected as he goes first
+        isComputerOpponent.value = config.isComputer
+    }
 
     Column(
         modifier = Modifier
@@ -65,7 +125,7 @@ fun GameScreen(navController: NavHostController) {
                 modifier = Modifier
                     .padding(start = 25.dp)
                     .clickable {
-//                        navController.navigate(Route.gameConfigScreen)
+                        navController.navigate(Route.gameConfigScreen)
                     },
                 painter = painterResource(id = R.drawable.ic_action_close),
                 contentDescription = "close"
@@ -94,15 +154,17 @@ fun GameScreen(navController: NavHostController) {
         ) {
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                ColorSelectorCircle(R.color.red, selectedColor)
+                //first player
+                ColorSelectorCircle(player1Color.value, selectedColor)
                 Spacer(modifier = Modifier.height(5.dp))
-                Text(text = "You")
+                Text(text = stringResource(id = getPlayerResId(player1Name.value)), color = colorResource(id = R.color.white))
             }
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                ColorSelectorCircle(R.color.yellow, selectedColor)
+                //second player
+                ColorSelectorCircle(player2Color.value, selectedColor)
                 Spacer(modifier = Modifier.height(5.dp))
-                Text(text = "Opponent")
+                Text(text = stringResource(id = getPlayerResId(player2Name.value)), color = colorResource(id = R.color.white))
             }
 
         }
@@ -123,23 +185,53 @@ fun GameScreen(navController: NavHostController) {
 
 
         Board(board) { column ->
-            if ((winner.value ?: 0) == 0) {
+            if ((winner.value ?: 0) != 0) {
+                return@Board
+            }
+
+            if (isComputerOpponent.value) {
+                if (currentPlayer.value == 1) {
+                    dropColor(board, column, currentPlayer.value)
+                    winner.value = when (BoardLogic.checkWin(board.value)) {
+                        BoardLogic.Outcome.PLAYER1_WINS -> 1
+                        BoardLogic.Outcome.PLAYER2_WINS -> 2
+                        else -> null
+                    }
+                    currentPlayer.value = 2
+                    selectedColor.value = R.color.yellow
+                    GlobalScope.launch {
+                        delay(1000L)
+                        computerPlayer.makeMove()
+                        winner.value = when (BoardLogic.checkWin(board.value)) {
+                            BoardLogic.Outcome.PLAYER1_WINS -> 1
+                            BoardLogic.Outcome.PLAYER2_WINS -> 2
+                            else -> null
+                        }
+                        currentPlayer.value = 1
+                        selectedColor.value = R.color.red
+                    }
+                    Log.i("Winner", "checkForWin ${winner.value}")
+                }
+            } else {
                 dropColor(board, column, currentPlayer.value)
                 winner.value = when (BoardLogic.checkWin(board.value)) {
                     BoardLogic.Outcome.PLAYER1_WINS -> 1
                     BoardLogic.Outcome.PLAYER2_WINS -> 2
                     else -> null
                 }
+                Log.i("Winner", "checkForWin ${winner.value}")
 
-                Log.i("Winner","checkForWin ${winner.value}")
-
-                currentPlayer.value = if (currentPlayer.value == 1) 2 else 1
+                if (currentPlayer.value == 1) {
+                    currentPlayer.value = 2
+                    selectedColor.value = R.color.yellow
+                } else {
+                    currentPlayer.value = 1
+                    selectedColor.value = R.color.red
+                }
             }
         }
 
-
         Spacer(modifier = Modifier.height(25.dp))
-
 
     }
 }

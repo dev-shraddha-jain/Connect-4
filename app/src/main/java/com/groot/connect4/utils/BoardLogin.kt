@@ -1,4 +1,4 @@
-package com.groot.connect4
+package com.groot.connect4.utils
 
 import android.util.Log
 
