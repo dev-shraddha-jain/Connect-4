@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -50,11 +51,11 @@ fun GameScreen(navController: NavHostController) {
     val isComputerOpponent = remember { mutableStateOf(false) }
     val player1Name = remember { mutableStateOf(Opponent.OPPONENT_SELF) }
     val player2Name = remember { mutableStateOf(Opponent.OPPONENT_AI) }
-    val selectedColor = remember { mutableStateOf(R.color.red) }
-    val player2Color = remember { mutableStateOf(R.color.red) }
-    val player1Color = remember { mutableStateOf(R.color.red) }
+    val selectedColor = remember { mutableIntStateOf(R.color.red) }
+    val player2Color = remember { mutableIntStateOf(R.color.red) }
+    val player1Color = remember { mutableIntStateOf(R.color.red) }
 
-    val currentPlayer = remember { mutableStateOf(1) }
+    val currentPlayer = remember { mutableIntStateOf(1) }
     val winner = remember { mutableStateOf<Int?>(0) }
     val board = remember { mutableStateOf(Array(6) { Array(7) { 0 } }) }
 
@@ -68,13 +69,13 @@ fun GameScreen(navController: NavHostController) {
 
         if (config.player1Color == R.color.red) {
 
-            player2Color.value = R.color.yellow
-            player1Color.value = R.color.red
-            currentPlayer.value = 1
+            player2Color.intValue = R.color.yellow
+            player1Color.intValue = R.color.red
+            currentPlayer.intValue = 1
         } else {
-            player2Color.value = R.color.red
-            player1Color.value = R.color.yellow
-            currentPlayer.value = 2
+            player2Color.intValue = R.color.red
+            player1Color.intValue = R.color.yellow
+            currentPlayer.intValue = 2
 
             player2Name.value
         }
@@ -101,7 +102,7 @@ fun GameScreen(navController: NavHostController) {
             }
         }
 
-        selectedColor.value = config.player1Color// set player 1 color to selected as he goes first
+        selectedColor.intValue = config.player1Color// set player 1 color to selected as he goes first
         isComputerOpponent.value = config.isComputer
     }
 
