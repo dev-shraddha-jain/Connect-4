@@ -49,6 +49,13 @@ android {
 }
 
 dependencies {
+
+
+    implementation(libs.app.update)
+
+    // For Kotlin users also import the Kotlin extensions library for Play In-App Update:
+    implementation(libs.app.update.ktx)
+
     implementation(libs.androidx.navigation)
 
     implementation(libs.androidx.core.ktx)
