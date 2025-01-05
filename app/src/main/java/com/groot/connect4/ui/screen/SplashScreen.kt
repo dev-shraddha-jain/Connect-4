@@ -66,6 +66,8 @@ fun SplashScreen(navController: NavHostController) {
             coroutineScope.launch {
                 snackbarHostState.showSnackbar("Update flow failed! Result code: ${result.resultCode}")
             }
+        } else {
+            navController.navigate(Route.gameConfigScreen)
         }
     }
 
@@ -73,15 +75,13 @@ fun SplashScreen(navController: NavHostController) {
         appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
                 appUpdateInfoSt.value = appUpdateInfo
+                isUpdateAvailable.value = true
                 if (appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
                     appUpdateManager.startUpdateFlowForResult(appUpdateInfo, launcher, appUpdateOptions)
-                } else {
-                    isUpdateAvailable.value = true
                 }
             } else {
                 navController.navigate(Route.gameConfigScreen)
             }
-
         }
     }
 
@@ -123,7 +123,6 @@ fun SplashScreen(navController: NavHostController) {
 
                     val appUpdateInfo = appUpdateInfoSt.value ?: return@CustomButton
                     appUpdateManager.startUpdateFlowForResult(appUpdateInfo, launcher, appUpdateOptions)
-
                 }
 
                 CustomButton("Not Now", R.color.gray, R.color.gray) {
