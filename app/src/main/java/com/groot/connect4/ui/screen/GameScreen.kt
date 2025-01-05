@@ -157,14 +157,14 @@ fun GameScreen(navController: NavHostController) {
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 //first player
-                ColorSelectorCircle(player1Color.value, selectedColor)
+                ColorSelectorCircle(player1Color.intValue, selectedColor)
                 Spacer(modifier = Modifier.height(5.dp))
                 Text(text = stringResource(id = getPlayerResId(player1Name.value)), color = colorResource(id = R.color.white))
             }
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 //second player
-                ColorSelectorCircle(player2Color.value, selectedColor)
+                ColorSelectorCircle(player2Color.intValue, selectedColor)
                 Spacer(modifier = Modifier.height(5.dp))
                 Text(text = stringResource(id = getPlayerResId(player2Name.value)), color = colorResource(id = R.color.white))
             }
@@ -192,15 +192,15 @@ fun GameScreen(navController: NavHostController) {
             }
 
             if (isComputerOpponent.value) {
-                if (currentPlayer.value == 1) {
-                    dropColor(board, column, currentPlayer.value)
+                if (currentPlayer.intValue == 1) {
+                    dropColor(board, column, currentPlayer.intValue)
                     winner.value = when (BoardLogic.checkWin(board.value)) {
                         BoardLogic.Outcome.PLAYER1_WINS -> 1
                         BoardLogic.Outcome.PLAYER2_WINS -> 2
                         else -> null
                     }
-                    currentPlayer.value = 2
-                    selectedColor.value = R.color.yellow
+                    currentPlayer.intValue = 2
+                    selectedColor.intValue = R.color.yellow
                     GlobalScope.launch {
                         delay(1000L)
                         computerPlayer.makeMove()
@@ -209,13 +209,13 @@ fun GameScreen(navController: NavHostController) {
                             BoardLogic.Outcome.PLAYER2_WINS -> 2
                             else -> null
                         }
-                        currentPlayer.value = 1
-                        selectedColor.value = R.color.red
+                        currentPlayer.intValue = 1
+                        selectedColor.intValue = R.color.red
                     }
                     Log.i("Winner", "checkForWin ${winner.value}")
                 }
             } else {
-                dropColor(board, column, currentPlayer.value)
+                dropColor(board, column, currentPlayer.intValue)
                 winner.value = when (BoardLogic.checkWin(board.value)) {
                     BoardLogic.Outcome.PLAYER1_WINS -> 1
                     BoardLogic.Outcome.PLAYER2_WINS -> 2
@@ -223,12 +223,12 @@ fun GameScreen(navController: NavHostController) {
                 }
                 Log.i("Winner", "checkForWin ${winner.value}")
 
-                if (currentPlayer.value == 1) {
-                    currentPlayer.value = 2
-                    selectedColor.value = R.color.yellow
+                if (currentPlayer.intValue == 1) {
+                    currentPlayer.intValue = 2
+                    selectedColor.intValue = R.color.yellow
                 } else {
-                    currentPlayer.value = 1
-                    selectedColor.value = R.color.red
+                    currentPlayer.intValue = 1
+                    selectedColor.intValue = R.color.red
                 }
             }
         }

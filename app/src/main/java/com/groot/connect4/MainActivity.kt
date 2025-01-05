@@ -1,5 +1,6 @@
 package com.groot.connect4
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,6 +18,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+
         setContent {
             Connect4Theme {
                 Scaffold {
@@ -26,7 +29,6 @@ class MainActivity : ComponentActivity() {
                             .padding(it)
                     ) {
                         NavHostController(navController = rememberNavController())
-
                     }
                 }
             }
