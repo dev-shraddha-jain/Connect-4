@@ -8,7 +8,7 @@ import com.groot.connect4.ui.screen.GameConfigScreen
 import com.groot.connect4.ui.screen.GameScreen
 import com.groot.connect4.ui.screen.SplashScreen
 
-fun Navigate(navController: NavHostController, wrapperDto: Any, destination: String) {
+fun Navigate(navController: NavHostController, wrapperDto: NavArgWrapperDto?, destination: String) {
     navController.currentBackStackEntry?.savedStateHandle?.set("navArgWrapperDto", wrapperDto)
     navController.navigate(destination)
 }

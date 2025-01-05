@@ -37,6 +37,7 @@ import com.groot.connect4.R
 import com.groot.connect4.di.GameConfig
 import com.groot.connect4.di.Opponent
 import com.groot.connect4.navigation.NavArgWrapperDto
+import com.groot.connect4.navigation.Navigate
 import com.groot.connect4.navigation.Route
 import com.groot.connect4.ui.theme.Connect4Theme
 import com.groot.connect4.utils.BoardLogic
@@ -126,7 +127,7 @@ fun GameScreen(navController: NavHostController) {
                 modifier = Modifier
                     .padding(start = 25.dp)
                     .clickable {
-                        navController.navigate(Route.gameConfigScreen)
+                        Navigate(navController, null, Route.gameConfigScreen)
                     },
                 painter = painterResource(id = R.drawable.ic_action_close),
                 contentDescription = "close"
@@ -137,7 +138,7 @@ fun GameScreen(navController: NavHostController) {
                 modifier = Modifier
                     .padding(end = 25.dp)
                     .clickable {
-                        navController.navigate(Route.gameScreen) //todo restart game
+                        Navigate(navController, wrapper, Route.gameScreen)
                     },
                 painter = painterResource(id = R.drawable.ic_action_restart),
                 contentDescription = "close"

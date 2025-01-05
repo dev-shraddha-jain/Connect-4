@@ -72,17 +72,21 @@ fun SplashScreen(navController: NavHostController) {
     }
 
     LaunchedEffect(key1 = Unit) {
-        appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
-            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
-                appUpdateInfoSt.value = appUpdateInfo
-                isUpdateAvailable.value = true
-                if (appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
-                    appUpdateManager.startUpdateFlowForResult(appUpdateInfo, launcher, appUpdateOptions)
+        appUpdateInfoTask
+            .addOnSuccessListener { appUpdateInfo ->
+                if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
+                    appUpdateInfoSt.value = appUpdateInfo
+                    isUpdateAvailable.value = true
+                    if (appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
+                        appUpdateManager.startUpdateFlowForResult(appUpdateInfo, launcher, appUpdateOptions)
+                    }
+                } else {
+                    navController.navigate(Route.gameConfigScreen)
                 }
-            } else {
+            }
+            .addOnFailureListener {
                 navController.navigate(Route.gameConfigScreen)
             }
-        }
     }
 
 
